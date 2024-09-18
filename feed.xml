@@ -1,109 +1,777 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://lixianphwang.com/feed.xml" rel="self" type="application/atom+xml"/><link href="https://lixianphwang.com/" rel="alternate" type="text/html" hreflang="en"/><updated>2024-03-05T01:27:41+00:00</updated><id>https://lixianphwang.com/feed.xml</id><title type="html">blank</title><subtitle></subtitle><entry><title type="html">A Duo Traveling Reversely</title><link href="https://lixianphwang.com/blog/2023/counterflow/" rel="alternate" type="text/html" title="A Duo Traveling Reversely"/><published>2023-11-22T00:00:00+00:00</published><updated>2023-11-22T00:00:00+00:00</updated><id>https://lixianphwang.com/blog/2023/counterflow</id><content type="html" xml:base="https://lixianphwang.com/blog/2023/counterflow/"><![CDATA[<div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/blog_cover-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/blog_cover-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/blog_cover-1400.webp"/> <img src="/assets/img/interact_counter_flow/blog_cover.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <p>This blog serves as a memorial for the project titled <a href="/projects/1_project/">“Interacting Counter-propagating Flows”</a> to keep notes of why I started and what I’ve learned from it.</p> <p>Imagine a scenario that a pair of flows move in opposite directions, and occasionally interact. We want to find out what these interactions lead to, given their initial states. There is no straightforward solution to this problem similar to in a co-propagating scenario. We will clarify the distinct nature of such counter-propagating flows and provide a complete solution to all possible interactions in a system of any size.</p> <h3 id="what-does-interaction-mean">What Does Interaction Mean?</h3> <p>In an interaction, two flows are forced to exchange information about their current status (state), leading to immediate changes of status. After this interaction, the flows will move on with the updated status. When this interaction is strong (the strength is tunable from 0 to 1, resembling probability of status transition), the status of flows is expected to be significantly changed toward an average. Remarkably, this interaction is mathematically identical to a well-known stochastic process- <a href="https://en.wikipedia.org/wiki/Markov_chain">Markov process</a>.</p> <div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/interaction_site-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/interaction_site-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/interaction_site-1400.webp"/> <img src="/assets/img/interact_counter_flow/interaction_site.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <p>An interaction can be represented by a transmission matrix $M(\beta)$ in which the diagonal elements stand for the probability for remaining in original edge state and off-diagonal elements stand for exchange rate between edge states. This kind of matrix has two important properties: a. All the elements in a row add up to 1; b. All the elements in a column add up to 1. The dimension of this matrix is equal to the number of existing edge states.</p> \[\mu_1^{\prime}=\left(1-\frac{T_1T_2}{T_1+T_2}\right)\mu_1+\left(\frac{T_1T_2}{T_1+T_2}\right)\mu_2\] \[\mu_2^{\prime}=\left(\frac{T_1T_2}{T_1+T_2}\right)\mu_1+\left(1-\frac{T_1T_2}{T_1+T_2}\right)\mu_2\] \[\begin{bmatrix}\mu_1^{\prime}\\ \mu_2^{\prime}\end{bmatrix} =\begin{bmatrix}1-\beta/2&amp;\beta/2\\ \beta/2&amp;1-\beta/2\end{bmatrix} \begin{bmatrix}\mu_1\\ \mu_2\end{bmatrix}=M(\beta)\begin{bmatrix}\mu_1\\ \mu_2\end{bmatrix}\] \[\beta=\frac{2T_1T_2}{T_1+T_2}\in[0,1]\] <h3 id="why-are-counter-propagating-flows-so-different">Why Are Counter-propagating Flows So Different?</h3> <div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/co_and_counter_flows-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/co_and_counter_flows-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/co_and_counter_flows-1400.webp"/> <img src="/assets/img/interact_counter_flow/co_and_counter_flows.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <h4 id="a-sequence-of-interactions">A Sequence of Interactions</h4> <p>For a single interaction, it is not necessary to distinguish co-propagating and counter-propagating mode. It is only when there are a sequence of interactions along the path, the distinct nature of counter-propagating edge states emerges. For co-propagating edge states, a sequence of interactions is relatively easy to take into account by repeatedly multiplying matrix representation of following interactions from head to end. This is because that the after-status coming out from a former interaction is exactly the before-status for the later interaction. However, this is not true for the counter-propagating situation where keeping track of the current status of each edge state becomes challenging and convoluted.</p> <h4 id="how-to-model-a-sequence-of-interactions">How to Model a Sequence of Interactions</h4> <p>For co-propagating situation, it is not difficult to see that the combined effect of a sequence of interactions is a product of matrices representing each individual interaction. However, this straightforward approach is not applicable to the counter-propagating situation. We need to be careful in dealing this more complex situation and come up with an algorithm for a minimum system containing two edge states. Unfortunately, this algorithm is not applicable to larger systems (more flows) which involve different types of interactions. Simply speaking, this is due to the fact that the matrix representation of a combined effect should not be structurally similar to any individual interaction matrix. Therefore, we need a general model to deal with arbitrary number of flows and interaction, which will be covered in the next section.</p> <div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/co_flows-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/co_flows-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/co_flows-1400.webp"/> <img src="/assets/img/interact_counter_flow/co_flows.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/counter_flows-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/counter_flows-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/counter_flows-1400.webp"/> <img src="/assets/img/interact_counter_flow/counter_flows.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <h3 id="what-happens-if-more-flows-and-more-interactions-are-involved">What Happens If More Flows and More Interactions Are Involved</h3> <p>The complexity will increase rapidly when the number of flows and interactions increases. First, introducing more flows means more types of interactions. We simply can not find an analytical format for the combined matrix representation that is structurally identical to any individual matrix representation. In principle, we are still able to provide the analytic form for each matrix element. However, it is almost not writable and solvable by hand once there are more than a few interactions. For doing so, we need a general model that can be transformed into algorithms and implemented in programming language, like Python. To the best of my knowledge, such a general model at this level of complexity is still lacking.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/larger_model-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/larger_model-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/larger_model-1400.webp"/> <img src="/assets/img/interact_counter_flow/larger_model.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <h3 id="how-can-this-be-useful-in-physics">How Can This Be Useful in Physics</h3> <p>Interacting counter-propagating flows are physically realized in a quantum Hall system with edge states moving oppositely. Here I would like to introduce the physics background to illustrate how related research can benefit from this work.</p> <h4 id="quantum-hall-effect-and-its-edge-state-picture">Quantum Hall effect and Its Edge-state Picture</h4> <p>When a two-dimensional (extremely thin film), highly-conducting (high crystalline quality) semiconductor-like material ( e.g., GaAs heterostructure) is subject to a vertically aligned magnetic field (approx. 6 orders of magnitude stronger than Earth’s magnetic field), a profound and intriguing phenomenon, referred to as <a href="https://en.wikipedia.org/wiki/Quantum_Hall_effect">quantum Hall effect</a>., appears and has been extensively studied since its birth in 1980. In history, several Noble Prizes have been awarded to related discoveries in <a href="https://www.nobelprize.org/prizes/physics/1985/press-release/">1985</a> , <a href="https://www.nobelprize.org/prizes/physics/1998/press-release/">1998</a> , <a href="https://www.nobelprize.org/prizes/physics/2016/summary/">2016</a>. Aside from its deeper physical implication like <a href="https://pubs.aip.org/physicstoday/article/56/8/38/388340/A-Topological-Look-at-the-Quantum-Hall-EffectThe">topology in physics</a> , a well-celebrated, trustful “edge-state” physical picture for this phenomenon is that, electrons are forced to move alongside the thin film edges in one direction, forming dissipationless “edge states” (electron flows). Without delving into deeper theory, a “magic” force seems to guide the motion of electrons. Nevertheless, this simple picture is accurate enough to be applicable in academic discussions and exciting enough to spur expectations of revolution in the field of electric power transmission if no magnetic field is needed (See <a href="https://en.wikipedia.org/wiki/Quantum_spin_Hall_effect">quantum spin Hall effect</a>).</p> <h4 id="landauer-büttiker-formalism-and-interaction-between-edge-states">Landauer-Büttiker Formalism and Interaction between Edge States</h4> <p>Back to “edge states”, this unique “bullet-like” (ballistic) motion of electrons can be most suitably described by a model developed by Markus Büttiker in early 80s based on <a href="https://en.wikipedia.org/wiki/Landauer_formula">Rolf Landauer’s earlier work</a>, later referred to as <a href="https://de.wikipedia.org/wiki/Landauer-B%C3%BCttiker-Formalismus#:~:text=Der%20Landauer%2DB%C3%BCttiker%2DFormalismus%2C,Quanten%2DHall%2DEffekts%20verwendet.">Landauer-Büttiker formalism</a> . Often we do not assume these edge states interact with each other or exchange electrons. In a typical device with terminals (electron reservoirs), interactions between edge states are in principle not discernible if all edge states move in the same direction (a co-propagating mode). This is because that co-propagating edge states themselves are identical in terms of physical properties like electrochemical potential and any exchange between them would not lead to any observable consequence. In order to detect this type of interaction, dedicated device design is needed to divert co-propagating edge states into different paths. For counter-propagating edge states, this interaction is directly measurable even in a standard device (uniform path).</p> <h3 id="code-implementation">Code Implementation</h3> <p>The source code of this open-source project is currently host on <a href="https://github.com/LarsonLaugh/Counterfusion">Github</a></p> <h4 id="design-of-classes">Design of Classes</h4> <p>For python implementation, two classes are designed: <code class="language-plaintext highlighter-rouge">System</code> and <code class="language-plaintext highlighter-rouge">Edge</code>. In class <code class="language-plaintext highlighter-rouge">Edge</code>, a method <code class="language-plaintext highlighter-rouge">trans_mat</code> is built to implement the forward-propagation process and to return a matrix representation of combined effect of the interaction sequence represented by this <code class="language-plaintext highlighter-rouge">Edge</code> instance. Another method <code class="language-plaintext highlighter-rouge">status_check</code> is built to implement the forward- and back- propagation processes together to return all the status along the sequence. To initialize an instance of class <code class="language-plaintext highlighter-rouge">system</code>, we need to first initialize several <code class="language-plaintext highlighter-rouge">Edge</code> instances as input beforehand. This <code class="language-plaintext highlighter-rouge">system</code> class account for a real system that contains not only sequences of interactions but also terminals which separate edges. A method <code class="language-plaintext highlighter-rouge">mastermat</code> is designed to return the master matrix equation and another method <code class="language-plaintext highlighter-rouge">solve</code> will return its solution - a vector of terminal voltages.</p> <h4 id="dynamic-programming-for-diverting-edge-states">Dynamic Programming for Diverting Edge States</h4> <p>I would like to highlight the implementation of dynamic programming, which allows for diverting edge states into different paths. In a standard Landauer-Büttiker system, all edge states enter each terminal without exception. The electronic measurement is only performed via terminals which measure all edge states at once. Consequently, this measurement result is an average of all edge states in terms of electro-chemical potential.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/dynamic_programming-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/dynamic_programming-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/dynamic_programming-1400.webp"/> <img src="/assets/img/interact_counter_flow/dynamic_programming.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <p>To extract additional information of edge states, it is advisable to block some of them from entering particular terminals, leading to different paths. In other words, this additional controls imposed on edge states may reveal hidden information, not detectable in conventional configuration (standard Landauer-Büttiker system). However, a complex blockage pattern may also cause difficulty in defining the blocked edge state, because that the information carried by these edge states, not detectable by terminals, spread into other edge states via interactions directly or indirectly. An algorithm is developed to resolve this complexity recursively.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/dynamic_programming1-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/dynamic_programming1-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/dynamic_programming1-1400.webp"/> <img src="/assets/img/interact_counter_flow/dynamic_programming1.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <p>An algorithm is developed to resolve this complexity recursively.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/interact_counter_flow/dynamic_programming2-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/interact_counter_flow/dynamic_programming2-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/interact_counter_flow/dynamic_programming2-1400.webp"/> <img src="/assets/img/interact_counter_flow/dynamic_programming2.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <h4 id="usage">Usage</h4> <p>The design principle for usage is to facilitate the bottom-up construction of a system from the building block - interaction. Hereby I would like to introduce how to build a system step-by-step with existing infrastructure from package <code class="language-plaintext highlighter-rouge">counterfusion</code>.</p> <p>A single interaction can be defined with a python snippet below:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">counterfusion</span> <span class="kn">import</span> <span class="n">interaction_builder</span>
-<span class="n">left_stochastic_matrix</span> <span class="o">=</span> <span class="nf">interaction_builder</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">id1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">id2</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.3</span><span class="p">])</span>
-<span class="n">right_stochastic_matrix</span> <span class="o">=</span> <span class="n">left_stochastsic_matrix</span><span class="p">.</span><span class="n">T</span>
-<span class="n">doubly_stochastic_matrix</span> <span class="o">=</span> <span class="nf">interaction_builder</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">id1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">id2</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div></div> <p>An edge containing a sequence of interactions can be defined:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">counterfusion</span> <span class="kn">import</span> <span class="n">generate_bynumber</span><span class="p">,</span> <span class="n">Edge</span>
-<span class="c1">#===============================================================
-# General information for the edge - Hyperparameters
-</span><span class="n">totalNumMover</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">numForwardMover</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">initStates</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.2</span><span class="p">]</span>
-<span class="c1">#===============================================================
-# Information of scattering events 
-# Interaction parameters
-</span><span class="n">v03</span> <span class="o">=</span> <span class="mf">0.3</span>
-<span class="n">v01</span> <span class="o">=</span> <span class="mf">0.5</span>
-<span class="n">v23</span> <span class="o">=</span> <span class="mf">0.8</span>
-<span class="n">edgeDef</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">v03</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">v01</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">v23</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="n">edgeInfo</span> <span class="o">=</span> <span class="nf">generate_bynumber</span><span class="p">(</span><span class="n">edgeDef</span><span class="p">)</span>
-<span class="n">edge</span> <span class="o">=</span> <span class="nc">Edge</span><span class="p">(</span><span class="n">edgeInfo</span><span class="p">,</span><span class="n">totalNumMover</span><span class="p">,</span><span class="n">numForwardMover</span><span class="p">)</span>
-</code></pre></div></div> <p>A six-edge (terminal) system can be defined:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">counterfusion</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="c1"># Define a six-terminal system
-# C1--M1--C2--M2--C3--M3--C4--M4--C5--M5--C6--M6--C1
-# Total number of edge states: 4
-# Number of forward-moving edge states: 2 (#0,#1)
-# Number of backward-moving edge states: 2 (#2,#3)
-#===============================================================
-# General information for the system - Hyperparameters
-</span><span class="n">totalNumMover</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">numForwardMover</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">zeroVoltTerminal</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="c1">#===============================================================
-# Information of scattering events 
-# Interaction parameters
-</span><span class="n">v02</span> <span class="o">=</span> <span class="mf">0.9</span>
-<span class="n">v13</span> <span class="o">=</span> <span class="mf">0.7</span>
-<span class="n">v12</span> <span class="o">=</span> <span class="mf">0.3</span>
-<span class="c1"># Define interaction between nodes (contacts)
-# C1--M1--C2
-</span><span class="n">edgeDef1</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v02</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">v13</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="c1"># C2--M2--C3
-</span><span class="n">edgeDef2</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v02</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v12</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="c1"># C3--M3--C4
-</span><span class="n">edgeDef3</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v02</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">v13</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="c1"># C4--M4--C5
-</span><span class="n">edgeDef4</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v02</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v12</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="c1"># C5--M5--C6
-</span><span class="n">edgeDef5</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v02</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">v13</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="c1"># C6--M6--C1
-</span><span class="n">edgeDef6</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v02</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">v12</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
-<span class="c1">#================================================================
-</span><span class="n">edgesDef</span> <span class="o">=</span> <span class="p">[</span><span class="n">edgeDef1</span><span class="p">,</span><span class="n">edgeDef2</span><span class="p">,</span><span class="n">edgeDef3</span><span class="p">,</span><span class="n">edgeDef4</span><span class="p">,</span><span class="n">edgeDef5</span><span class="p">,</span><span class="n">edgeDef6</span><span class="p">]</span>
-<span class="n">edgesInfo</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">edgeDef</span> <span class="ow">in</span> <span class="n">edgesDef</span><span class="p">:</span>
-    <span class="n">edgesInfo</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">generate_bynumber</span><span class="p">(</span><span class="n">edgeDef</span><span class="p">))</span>
-<span class="n">graph</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">edgeInfo</span> <span class="ow">in</span> <span class="n">edgesInfo</span><span class="p">:</span>
-    <span class="n">graph</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nc">Edge</span><span class="p">(</span><span class="n">edgeInfo</span><span class="p">,</span><span class="n">totalNumMover</span><span class="p">,</span><span class="n">numForwardMover</span><span class="p">))</span>
-<span class="n">nodesCurrent</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">sys</span> <span class="o">=</span> <span class="nc">System</span><span class="p">(</span><span class="n">nodesCurrent</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">numForwardMover</span><span class="p">,</span><span class="n">zeroVoltTerminal</span><span class="p">)</span>
-</code></pre></div></div> <p>Separate paths of edge states can be realized by editing <code class="language-plaintext highlighter-rouge">blockStates</code>:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># The definition of blocking_state should strictly follow this rule: 
-# [[index_of_terminal#1,[all blocked states in this terminal]],[[index_of_terminal#2,[all blocked states in this terminal],...]]]
-</span><span class="n">blockStates</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,[</span><span class="mi">0</span><span class="p">]],[</span><span class="mi">0</span><span class="p">,[</span><span class="mi">2</span><span class="p">]],[</span><span class="mi">2</span><span class="p">,[</span><span class="mi">3</span><span class="p">]],[</span><span class="mi">3</span><span class="p">,[</span><span class="mi">1</span><span class="p">]]]</span>
-<span class="n">sys</span> <span class="o">=</span> <span class="nc">System</span><span class="p">(</span><span class="n">nodesCurrent</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">numForwardMover</span><span class="p">,</span><span class="n">zeroVoltTerminal</span><span class="p">,</span><span class="n">blockStates</span><span class="p">)</span>
-</code></pre></div></div>]]></content><author><name></name></author><category term="physics"/><category term="algorithm"/><category term="programming"/><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">How to Turn My Kettle into a Sous Vide Cooker</title><link href="https://lixianphwang.com/blog/2022/pid/" rel="alternate" type="text/html" title="How to Turn My Kettle into a Sous Vide Cooker"/><published>2022-12-12T00:00:00+00:00</published><updated>2022-12-12T00:00:00+00:00</updated><id>https://lixianphwang.com/blog/2022/pid</id><content type="html" xml:base="https://lixianphwang.com/blog/2022/pid/"><![CDATA[<p>This blog serves as a memorial for the project titled <a href="/projects/4_project/">“A genetic-algorithm optimized PID controller”</a> to keep notes of why i started and what i learned from it.</p> <h2 id="background-and-motivation">Background and Motivation</h2> <p>I came across an advert for <a href="https://anovaculinary.com/pages/what-is-sous-vide">Sous vide cooker</a>, which is popular for preparing juicy steak. I happened to have an electronic kettle to be replaced. Not very happy with its condition, and a new one was already in my shopping list. Bingo! A natural idea came to me that this kettle can be repurposed to mimic what a Sous vide cooker could do - maintaining a fixed temperature of a body of water for a relatively long time. I knew immediately that this requires a good PID controller just like what I have in a cryostat for stabilizing the sample chamber temperature slightly above the absolute zero. As one may know, the brain of the PID controller is a simple feedback loop governed by three parameters: proportional gain (P), integral gain (I) and derivative gain (D). In practice, in a narrow range of goal temperature, these parameters do not need to be dynamically adapted to a different goal if the external environment is stable. However, it is not guaranteed to always achieve the best stabilization for a wide range of goal temperature for the same set of parameters. That means these parameters also need to be changed if the goal temperature varies. On top of the PID feedback loop, we also need to add another layer of feedback loop to optimize parameters P, I and D. Then the genetic algorithm seems to be useful here for generating the best choice of parameters. Here is a definition for genetic algorithm from MathWorks:</p> <blockquote> <p>A genetic algorithm (GA) is a method for solving both constrained and unconstrained optimization problems based on a natural selection process that mimics biological evolution. The algorithm repeatedly modifies a population of individual solutions. At each step, the genetic algorithm randomly selects individuals from the current population and uses them as parents to produce the children for the next generation. Over successive generations, the population “evolves” toward an optimal solution.</p> </blockquote> <p>This experiment with genetic algorithm would at least guarantee me an enjoyable exploration if not a ready-to-use Sous vide cooker. Not too bad at the worst situation. Let’s go on the journey.</p> <h2 id="how-to-implement-this-idea">How to Implement This Idea</h2> <h3 id="how-to-stablize-the-temperature-in-general">How to Stablize the Temperature in General</h3> <p>Before moving into the actual implementation, I would like to first compare a few ideas side-by-side for stablizing temperature, ranging from the most intuitive but also naive one to the less intuitive but more practical ones. I do not intend to specify programming language at this stage thus choose to illustrate in pseudo-code.</p> <ul> <li>Idea0 (without a PID controller): <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="nf">measured </span><span class="p">(</span><span class="n">actual</span><span class="p">)</span> <span class="n">temperature</span> <span class="o">&lt;</span> <span class="n">the</span> <span class="n">goal</span> <span class="n">temperature</span><span class="p">:</span>
-  <span class="n">turn</span> <span class="n">on</span> <span class="n">the</span> <span class="n">heater</span> 
-<span class="k">else</span><span class="p">:</span>
-  <span class="n">turn</span> <span class="n">off</span> <span class="n">the</span> <span class="n">heater</span>
-</code></pre></div> </div> </li> </ul> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/idea0-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/idea0-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/idea0-1400.webp"/> <img src="/assets/img/pidcontroller/idea0.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <p>It is the most intuitive approach but not practical at all in achieving stabilization due to overshooting the temperature and a lack of mechanism to balance this out.</p> <ul> <li>Idea1 (with a PID controller configured with a fixed set of parameters): <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Kp</span><span class="p">,</span> <span class="n">Ki</span><span class="p">,</span> <span class="n">Kd</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span>
-<span class="n">error</span> <span class="o">=</span> <span class="n">measured</span> <span class="n">temperature</span> <span class="o">-</span> <span class="nb">set</span> <span class="n">temperature</span>
-<span class="n">integral</span> <span class="o">=</span> <span class="n">error</span> <span class="o">+</span> <span class="n">integral</span>
-<span class="n">derivative</span> <span class="o">=</span> <span class="p">(</span><span class="n">lasterror</span><span class="o">-</span><span class="n">error</span><span class="p">)</span><span class="o">/</span><span class="n">dt</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">Kp</span><span class="o">*</span><span class="n">error</span><span class="o">+</span><span class="n">Ki</span><span class="o">*</span><span class="n">integral</span><span class="o">+</span><span class="n">Kd</span><span class="o">*</span><span class="n">derivative</span>
-<span class="k">if</span> <span class="n">output</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-  <span class="n">turn</span> <span class="n">on</span> <span class="n">the</span> <span class="n">heater</span>
-<span class="k">else</span><span class="p">:</span>
-  <span class="n">turn</span> <span class="n">off</span> <span class="n">the</span> <span class="n">heater</span>
-</code></pre></div> </div> <p>The PID controller will determine when to turn off and on the heater. However, we need to manually set the PID parameters Kp, Ki, Kd according to prior knowledge.</p> </li> </ul> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/idea1-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/idea1-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/idea1-1400.webp"/> <img src="/assets/img/pidcontroller/idea1.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <ul> <li> <p>Idea2 (Train the genetic algorithm in actual data): We use the genetic algorithm to predict the best parameters for a goal temperature. The genetic algorithm needs data to provide feedback in the closed loop of training. These data can be generated by traversing the PID parameter space in hundreds and thousands of experiments. Clearly, this approach is time-consuming and not practical if not involving automation process.</p> </li> <li> <p>Idea3 (Train the algorithm in a physical model): Thanks to the law of physics, we can first build up a physical model in which we can train the genetic algorithm in seconds. The implementation is then constituted by three steps: 1. Build a physical model as realistic as possible 2. Train the genetic algorithm in a physical model; 3. Deploy the optimized PID parameters to control hardware.</p> </li> </ul> <h3 id="physical-modeling">Physical Modeling</h3> <p>Heat transfer can take place in four different ways : <a href="https://en.wikipedia.org/wiki/Heat_transfer">Advection, thermal conduction, convection and radiation</a>. Here we only consider thermal conduction as the major contributor. We also consider metallic walls of the kettle to be perfectly transparent in terms of thermal conduction. Therefore, the hot water directly interfaces the cold air outside. Then we can start to do some calculations of relevant physical properties. According to Fourier’s law: heater transfer per $meter^2/sec$ = - thermal conductivity * gradient of temperature ~ 540 $Watt/meter^2$. The surface area of the kettle is estimated to be about 700 $cm^2$. Then the rate of heat dissipation is thus 37.8 W. The thermal conductivity of air is about <a href="https://www.engineeringtoolbox.com/air-properties-viscosity-conductivity-heat-capacity-d_1509.html"><strong>27 mW/m K</strong></a>. The heater power is 1000 Watt according to its manufacturer. Here is my sketch to illustrate the idea and some necessary math along the way: By knowing the heat capacity of water to be <a href="https://www.engineeringtoolbox.com/specific-heat-capacity-water-d_660.html"><strong>4.184 Joule/gram/deg</strong></a> and 0.8L (800 gram) water inside, we can estimate that the temperature goes up at a rate of <strong>0.3 deg/sec</strong> when the heater is on and decreases at a rate of <strong>0.012 deg/sec</strong> when the heater is off. Note that this estimate is not a function of temperature. So far, we have finished the physical modeling part.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/physmodeling-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/physmodeling-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/physmodeling-1400.webp"/> <img src="/assets/img/pidcontroller/physmodeling.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <h3 id="training-process-of-the-genetic-algorithm">Training Process of the Genetic Algorithm</h3> <p>In the training process, the simulated temperature is programmed to goes up by 0.32 degree in each heating cycle and decreases by 0.012 degree in each natural cooling cycle according to the results of physical modelling by assuming 1 cycle = 1 second.</p> <p>To evaluate each set of PID parameters, a cost function is defined by <code class="language-plaintext highlighter-rouge">L_mae= sum(abs(set temp - measured temp))</code> or <code class="language-plaintext highlighter-rouge">L_mse=sum((set temp - measured temp)^2)</code>. At each generation, we select the set of parameters minimizing the cost function, and directly pass its properties onto the next generation (The principle of elitism) . Then we also provide a mechanism to mutate the “worst” set of parameters with the highest cost function value by <code class="language-plaintext highlighter-rouge">pid_mutation</code>, i.e., to fully randomize its values of Kp, Ki, Kd. For the rest, we would like to let them hybridize with neighbors to produce the next generation by <code class="language-plaintext highlighter-rouge">pid_hybrid</code>. This step helps to remain some good genetic properties the system, which are not fully manifested but potentially useful for later generations. <br/> The code implementation is:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">pid_hybrid</span><span class="p">(</span><span class="n">pid1</span><span class="p">,</span> <span class="n">pid2</span><span class="p">):</span>
-    <span class="n">dice</span> <span class="o">=</span> <span class="nf">rand</span><span class="p">()</span> <span class="o">*</span> <span class="mi">3</span>
-    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">dice</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">pid1_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="n">pid1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pid2</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-        <span class="n">pid2_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="n">pid2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pid1</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-    <span class="k">elif</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">dice</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">pid1_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="n">pid2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pid2</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-        <span class="n">pid2_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="n">pid1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pid1</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">pid1_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="n">pid2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pid1</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-        <span class="n">pid2_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="n">pid1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pid2</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-    <span class="k">return</span> <span class="n">pid1_new</span><span class="p">,</span> <span class="n">pid2_new</span>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://alshedivat.github.io/al-folio/feed.xml" rel="self" type="application/atom+xml"/><link href="https://alshedivat.github.io/al-folio/" rel="alternate" type="text/html" hreflang="en"/><updated>2024-09-18T18:27:52+00:00</updated><id>https://alshedivat.github.io/al-folio/feed.xml</id><title type="html">blank</title><subtitle>A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. </subtitle><entry><title type="html">Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra</title><link href="https://alshedivat.github.io/al-folio/blog/2024/google-gemini-updates-flash-15-gemma-2-and-project-astra/" rel="alternate" type="text/html" title="Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra"/><published>2024-05-14T00:00:00+00:00</published><updated>2024-05-14T00:00:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/google-gemini-updates-flash-15-gemma-2-and-project-astra</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/google-gemini-updates-flash-15-gemma-2-and-project-astra/"><![CDATA[]]></content><author><name></name></author><summary type="html"><![CDATA[We’re sharing updates across our Gemini family of models and a glimpse of Project Astra, our vision for the future of AI assistants.]]></summary></entry><entry><title type="html">a post with tabs</title><link href="https://alshedivat.github.io/al-folio/blog/2024/tabs/" rel="alternate" type="text/html" title="a post with tabs"/><published>2024-05-01T00:32:13+00:00</published><updated>2024-05-01T00:32:13+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/tabs</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/tabs/"><![CDATA[<p>This is how a post with <a href="https://github.com/Ovski4/jekyll-tabs">tabs</a> looks like. Note that the tabs could be used for different purposes, not only for code.</p> <h2 id="first-tabs">First tabs</h2> <p>To add tabs, use the following syntax:</p> <div class="language-liquid highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">{%</span><span class="w"> </span><span class="nt">tabs</span><span class="w"> </span><span class="nv">group-name</span><span class="w"> </span><span class="cp">%}</span>
 
-<span class="k">def</span> <span class="nf">pid_mutation</span><span class="p">():</span>
-    <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="nf">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</code></pre></div></div> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/GAlgo-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/GAlgo-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/GAlgo-1400.webp"/> <img src="/assets/img/pidcontroller/GAlgo.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <p>Starting from the 99th generation (iteration), we find that all winners’ descendants collapse in a smaller volume in (Kp, Ki, Kd) parameter space. That means the model has already been trained or optimized, thus ends the optimization process.</p> <div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/scatters-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/scatters-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/scatters-1400.webp"/> <img src="/assets/img/pidcontroller/scatters.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/scatters02-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/scatters02-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/scatters02-1400.webp"/> <img src="/assets/img/pidcontroller/scatters02.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <h3 id="hardware-components-and-wiring">Hardware components and wiring</h3> <table> <thead> <tr> <th>Functional parts</th> <th>Models</th> </tr> </thead> <tbody> <tr> <td>Microcontroller</td> <td>Raspberry Pi Pico/ Ardurio Nano</td> </tr> <tr> <td>Temperature sensor</td> <td>MAX6675</td> </tr> <tr> <td>220V control</td> <td>Relay</td> </tr> <tr> <td>User interface</td> <td>ICD 1602</td> </tr> <tr> <td>User input</td> <td>rotary potentiometer</td> </tr> </tbody> </table> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/sketch_ArduinoNano-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/sketch_ArduinoNano-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/sketch_ArduinoNano-1400.webp"/> <img src="/assets/img/pidcontroller/sketch_ArduinoNano.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <h3 id="software">Software</h3> <p>The source code of this open-source project is hosted by <a href="https://github.com/LarsonLaugh/pidML">Github</a></p> <h4 id="algorithm-training-process">Algorithm Training Process</h4> <p>For Python users, use <code class="language-plaintext highlighter-rouge">pidtrain.py</code> to train your PID controller in simulation. For C++ users, use <code class="language-plaintext highlighter-rouge">pidtrain.cpp</code> to train your PID controller instead. C++ code is 50 times faster than its Python counterpart. .</p> <h4 id="deploy-to-microcontroller">Deploy to Microcontroller</h4> <p>The <code class="language-plaintext highlighter-rouge">Micropython</code> code for microcontroller unit (MCU) is stored in <code class="language-plaintext highlighter-rouge">mpython</code> folder. Please include the libraries in <code class="language-plaintext highlighter-rouge">lib</code> as well. The Arduino code for MCU is stored in <code class="language-plaintext highlighter-rouge">Arduino</code> folder and please include the <code class="language-plaintext highlighter-rouge">libraries</code> folder</p> <h3 id="user-interface-design-for-the-microcontroller">User Interface Design for the Microcontroller</h3> <p>The LCD is only 16 by 2, so we have to fully exploit the limited screen space and the switch button of the rotary potentiometer.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/ui_screen0-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/ui_screen0-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/ui_screen0-1400.webp"/> <img src="/assets/img/pidcontroller/ui_screen0.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <div class="caption"> screen 0 </div> <p>This is the main screen to display setting temperature and reading. Press button to go next.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/ui_screen1-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/ui_screen1-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/ui_screen1-1400.webp"/> <img src="/assets/img/pidcontroller/ui_screen1.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <div class="caption"> screen 1 </div> <p>This is the second screen (<code class="language-plaintext highlighter-rouge">screen1</code>) to monitor the PID paramters in use and the calculated output value in real time. Press button to go next and roll to the left to go back to <code class="language-plaintext highlighter-rouge">screen0</code>.</p> <div class="row mt-3"> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/ui_screen2-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/ui_screen2-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/ui_screen2-1400.webp"/> <img src="/assets/img/pidcontroller/ui_screen2.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/ui_screen3-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/ui_screen3-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/ui_screen3-1400.webp"/> <img src="/assets/img/pidcontroller/ui_screen3.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/ui_screen4-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/ui_screen4-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/ui_screen4-1400.webp"/> <img src="/assets/img/pidcontroller/ui_screen4.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> </div> <div class="caption"> From left to right, screen 2, screen 3, screen 4 </div> <p>Above three screens (<code class="language-plaintext highlighter-rouge">screen2</code> to <code class="language-plaintext highlighter-rouge">screen4</code>) to modify the PID parameters one by one manually. Use the rotary potentiometer. Press button to go next.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/ui_screen5-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/ui_screen5-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/ui_screen5-1400.webp"/> <img src="/assets/img/pidcontroller/ui_screen5.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <div class="caption"> screen 5 </div> <p>This is the last screen <code class="language-plaintext highlighter-rouge">screen5</code>. Roll left to adapt <code class="language-plaintext highlighter-rouge">Auto mode</code> (default setting) and press button to accept the manually set PID parameters and go to <code class="language-plaintext highlighter-rouge">screen0</code>.</p> <h2 id="performance-test">Performance Test</h2> <h3 id="results-of-algorithm-training">Results of Algorithm Training</h3> <p>After training for 100 generations and a population size of 20 in each, a set of parameter (Kp = 88, Ki = 4.4, Kd = 18) is the final winner for a goal temperature of 56 degree Celsius.</p> <h3 id="algorithm-optimized-pid-controller-and-its-performance">Algorithm-optimized PID Controller and Its Performance</h3> <p>We configure our PID controller by this set for following experiments. Here we show the actual temperature curve (labelled as real) and the simulation result (labelled as simulation). In the first 2000 seconds, the simulation matches quite well with the actual curve real in both trend of temperature (upper) and output (<code class="language-plaintext highlighter-rouge">Kp*error+Ki*integral+Kd*derivative</code>) of the PID system (lower). That means our physical model gives accurate predictions of temperature change rates used here. After 2000 seconds, the temperature in simulation stabilizes within 0.32 degree. In reality, the temperature continues to fluctuate in a much narrowed window ~ 5 degrees. This fluctuation seems to be overshooting, which may be due to the fact that the heater is still much hotter than water and continues to heat water even after being powered off. This may be the bottleneck to achieve better performance.</p> <div class="col-sm mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/pidcontroller/realvssimu-480.webp"/> <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/pidcontroller/realvssimu-800.webp"/> <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/pidcontroller/realvssimu-1400.webp"/> <img src="/assets/img/pidcontroller/realvssimu.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </div> <h2 id="concluding-remarks">Concluding remarks</h2> <p>In the end, not surprisingly, there is still a lot to improve in many aspects for this combination of software and hardware to perform as good as a commercial cooker. For myself, it is thrilling to go through this exploration and broaden my knowledge in genetic algorithm and microcontrollers. I hope this is also some sort of entertaining for you to go with me in this journey.</p>]]></content><author><name></name></author><category term="physics"/><category term="algorithm"/><category term="programming"/><category term="microcontroller"/><summary type="html"><![CDATA[This blog serves as a memorial for the project titled “A genetic-algorithm optimized PID controller” to keep notes of why i started and what i learned from it.]]></summary></entry><entry><title type="html">Reconciling Different Viewpoints of Landau Level Fan Chart</title><link href="https://lixianphwang.com/blog/2022/landaulevel-simulator/" rel="alternate" type="text/html" title="Reconciling Different Viewpoints of Landau Level Fan Chart"/><published>2022-07-15T00:00:00+00:00</published><updated>2022-07-15T00:00:00+00:00</updated><id>https://lixianphwang.com/blog/2022/landaulevel-simulator</id><content type="html" xml:base="https://lixianphwang.com/blog/2022/landaulevel-simulator/"><![CDATA[<p>This blog serves as a memorial for the project titled <a href="/projects/3_project/">“A Landau level simulator”</a> to keep notes of why i started and what i learned from it.</p> <h2 id="background-and-motivation">Background and motivation</h2> <h3 id="landau-level">Landau level</h3> <p>In solid-state physics, the famous <a href="https://en.wikipedia.org/wiki/Electronic_band_structure">band theory</a> describes how electrons are distributed favorably over energy and momentum in electronic materials. The states (energy, momentum, spin and etc.) of electrons collectively form an electronic band structure. When subjecting to a magnetic field, these electronic states would shift in energy according to its interactive terms with the field. As this field gets very strong, the interactive term (orbital contribution) becomes dominant and start to form dense bands with narrow energy dispersion (A lot of states have almost the same energy). These bands are also energetically discrete and referred to as <a href="https://en.wikipedia.org/wiki/Landau_quantization">“Landau level”</a>.</p> <h3 id="experimental-landau-fans-and-different-perspectives-of-theorists">Experimental Landau fans and different perspectives of theorists</h3> <p>If scanning the Landau levels in energy (shift the observation window energetically in y-direction) for a series of increasing magnetic fields (x-direction), we would be able to revealing the energy information of various Landau levels and how they evolve with the field. However, in experimental measurements, this scan is not so straightforward to implement, because that we don’t control the energy of observation window (chemical potential) directly. The variation of energy is actually realized via controlling the population of electrons (electron density) as tuning the voltage applied to one side of a capacitor placed on top of a device (gate). Importantly, the highest energy of populated electrons (chemical potential) is not linearly dependent on the electron density. This difference (nonlinear transition) between theoretic picture and physical realization always causes disputes between theorists and experimentalists (Don’t ask why I know this ;P).</p> <h3 id="an-experimental-attempt-a-landau-level-simulator">An experimental attempt: A Landau-level simulator</h3> <p>To win our theorist friends and keep ourselves happy, we need to connect our experimental data (Landau levels evolves in electron density) with more favorable physical picture in theorist’s mind (Landau levels evolve in energy). A more challenging task is to interpret our experimental data and translate it into an electronic band structure. A simulator of Landau levels is thus aimed to provide theoretic prediction that is directly comparable to experiments for a predefined electronic band structure at zero magnetic field. If this prediction aligns with experiments well, we would be able to conclude the electronic band structure in an error-and-try manner. At worst, this Landau level simulator will hopefully provide some insights into making choice between multiple reasonable guesses.</p> <h2 id="overview">Overview</h2> <p>The design of this project can be broken down into four steps: Firstly, construct an electronic band structure comprised of multiple single bands. These bands need to be defined by setting up parameters, e.g., choice of band (linear or quadratic), effective mass for quadratic bands, Fermi velocity for linear bands and zero-field energy point for each band. Secondly, we calculate the Landau level splitting as function of magnetic field. Thirdly, we translate this energy versus field into a density versus field plot. This process involves calculating the total density at each energy level (a loose definition of density of state), in another word, constructing an one-to-one correspondence between energy and density. The last step is to collect this transformed results of Landau levels at the chemical potential position in a density-versus-field plot for a series of discrete density values corresponding to experimentally attainable range. The collection of results will be then ready for a comparison with experiments (Landau fan chart).</p> <h2 id="introduction-to-key-aspects-of-a-cli-software">Introduction to key aspects of a CLI software</h2> <p>The source code of this open-source project is hosted in <a href="https://github.com/LarsonLaugh/toyband">Github</a></p> <h3 id="electronic-band-structure">Electronic band structure</h3> <p>The electronic band structure (energy versus momentum) of materials can be defined before entering actual calculations. For simplicity, it is assumed to be isotropic. Though this assumption seems to be oversimplified, we still can reach amazingly good match with experiments. This indicates that decorating the electron band by adding more terms and symmetries to its Hamiltonian is not as crucial as expected at least in the material system we studied.</p> <h3 id="configuration">Configuration</h3> <p>Default settings such IO, plotting styles and some modelling parameters (Landau level broadening) are stored in <code class="language-plaintext highlighter-rouge">config.py</code>.</p> <h3 id="functional-descriptions">Functional descriptions</h3> <h4 id="add-a-band-to-the-system">Add a band to the system</h4> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python addband.py <span class="o">[</span><span class="nt">-density</span><span class="o">]</span> <span class="o">{</span><span class="nt">-is_dirac</span><span class="o">}</span> <span class="o">{</span><span class="nt">-is_cond</span><span class="o">}</span> <span class="o">[</span><span class="nt">-gfactor</span> GFACTOR] <span class="o">[{</span><span class="nt">-dp</span> VF D<span class="o">}</span> <span class="o">{</span><span class="nt">-cp</span> MEFF SPIN<span class="o">}]</span>
-</code></pre></div></div> <h4 id="remove-bands-from-the-system">Remove band(s) from the system</h4> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python delband.py <span class="o">[</span><span class="nt">-i</span> INDEX or all]
-</code></pre></div></div> <h4 id="snapshot-the-system">Snapshot the system</h4> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python peeksys.py
-</code></pre></div></div> <h4 id="landau-levels-manifested-in-energy-versus-field">Landau levels manifested in energy versus field</h4> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python run.py <span class="o">[</span><span class="nt">-enplot</span><span class="o">]</span> <span class="o">{</span><span class="nt">-dir</span> DIR<span class="o">}</span> <span class="o">{</span><span class="nt">-fnm</span> FNM<span class="o">}</span> <span class="o">[</span><span class="nt">--enrange</span> Estart Eend Enum] <span class="o">[</span><span class="nt">--bfrange</span> Bstart Bend Bnum] <span class="o">{</span><span class="nt">-nmax</span> NMAX<span class="o">}</span> <span class="o">{</span><span class="nt">-angle</span> ANGLE<span class="o">}</span>
-</code></pre></div></div> <h4 id="landau-levels-manifested-in-density-versus-field">Landau levels manifested in density versus field</h4> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python run.py <span class="o">[</span><span class="nt">-denplot</span><span class="o">]</span> <span class="o">{</span><span class="nt">-dir</span> DIR<span class="o">}</span> <span class="o">{</span><span class="nt">-fnm</span> FNM<span class="o">}</span> <span class="o">[</span><span class="nt">--enrange</span> Estart Eend Enum] <span class="o">[</span><span class="nt">--bfrange</span> Bstart Bend Bnum] <span class="o">{</span><span class="nt">-nmax</span> NMAX<span class="o">}</span> <span class="o">{</span><span class="nt">-angle</span> ANGLE<span class="o">}</span>
-</code></pre></div></div> <h4 id="simulation-of-landau-fan-chart-for-given-densities">Simulation of Landau fan chart for given densities</h4> <ol> <li>Plot the density versus field relationship for a set of given densities (specified by <code class="language-plaintext highlighter-rouge">--allden</code> and <code class="language-plaintext highlighter-rouge">-nos</code>) as a simulation of Landau fan chart. <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python run.py <span class="o">[</span><span class="nt">-simu</span><span class="o">]</span> <span class="o">[</span><span class="nt">--allden</span> <span class="s2">"NS1 NE1 NS2 NE2 ..."</span><span class="o">]</span> <span class="o">[</span><span class="nt">-nos</span> NOS] <span class="o">{</span><span class="nt">-dir</span> DIR<span class="o">}</span> <span class="o">{</span><span class="nt">-fnm</span> FNM<span class="o">}</span> <span class="o">[</span><span class="nt">--enrange</span> Estart Eend Enum] <span class="o">[</span><span class="nt">--bfrange</span> Bstart Bend Bnum] <span class="o">{</span><span class="nt">-nmax</span> NMAX<span class="o">}</span> <span class="o">{</span><span class="nt">-angle</span> ANGLE<span class="o">}</span>
-</code></pre></div> </div> </li> <li>Alternatively, one can load densities stored in a csv file (no header) under a directory <code class="language-plaintext highlighter-rouge">DIR</code> and with a filename <code class="language-plaintext highlighter-rouge">FNM</code> : <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python run.py <span class="o">[</span><span class="nt">-simu</span><span class="o">]</span> <span class="o">[</span><span class="nt">-loadden</span> path-to-csvfile] <span class="o">{</span><span class="nt">-dir</span> DIR<span class="o">}</span> <span class="o">{</span><span class="nt">-fnm</span> FNM<span class="o">}</span> <span class="o">[</span><span class="nt">--enrange</span> Estart Eend Enum] <span class="o">[</span><span class="nt">--bfrange</span> Bstart Bend Bnum] <span class="o">{</span><span class="nt">-nmax</span> NMAX<span class="o">}</span> <span class="o">{</span><span class="nt">-angle</span> ANGLE<span class="o">}</span>
-</code></pre></div> </div> </li> </ol> <h4 id="density-of-state-dos">Density of state (DOS)</h4> <ol> <li>Plot the DOS versus field relationship at a fixed chemical potential <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python run.py <span class="o">[</span><span class="nt">-dos</span><span class="o">]</span> <span class="o">{</span><span class="nt">-dir</span> DIR<span class="o">}</span> <span class="o">{</span><span class="nt">-fnm</span> FNM<span class="o">}</span> <span class="o">[</span><span class="nt">--enrange</span> Estart Eend Enum] <span class="o">[</span><span class="nt">--bfrange</span> Bstart Bend Bnum] <span class="o">{</span><span class="nt">-nmax</span> NMAX<span class="o">}</span> <span class="o">{</span><span class="nt">-angle</span> ANGLE<span class="o">}</span>
-</code></pre></div> </div> </li> <li>Plot the DOS as function of density and field <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python run.py <span class="o">[</span><span class="nt">-dosm</span><span class="o">]</span> <span class="o">[</span><span class="nt">-loadden</span> path-to-csvfile] <span class="o">{</span><span class="nt">-dir</span> DIR<span class="o">}</span> <span class="o">{</span><span class="nt">-fnm</span> FNM<span class="o">}</span> <span class="o">[</span><span class="nt">--enrange</span> Estart Eend Enum] <span class="o">[</span><span class="nt">--bfrange</span> Bstart Bend Bnum] <span class="o">{</span><span class="nt">-nmax</span> NMAX<span class="o">}</span> <span class="o">{</span><span class="nt">-angle</span> ANGLE<span class="o">}</span>
-</code></pre></div> </div> </li> <li>Plot the data from csv file <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python plotfile.py <span class="o">[</span><span class="nt">-f</span> path-to-csvfile]
-</code></pre></div> </div> </li> </ol> <h3 id="introduction-to-modules">Introduction to modules</h3> <h4 id="module-addband">module <code class="language-plaintext highlighter-rouge">addband</code></h4> <p><code class="language-plaintext highlighter-rouge">python addband.py [-option][parameters]</code> Add a new band into the system. A system will be automatically initiated upon the creation of the first band.</p> <table> <thead> <tr> <th>Option</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code class="language-plaintext highlighter-rouge">density</code></td> <td>density for this band in units of 1/m^2</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-is_cond</code></td> <td>is a conduction band or not</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-gfactor</code></td> <td>g-factor for this band</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-dp DP1 DP2</code></td> <td>For linearly dispersing bands. DP1: fermi velocity (in units of m/s) DP2: D (meV nm^2) for a Dirac-like band. D(kx^2+ky^2) accounts for the deviation from a linear Dirac dispersion.</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-cp CP1 CP2</code></td> <td>For quadratically dispersing bands. CP1: absolute value of effective mass (in units of rest mass of electron) CP2: spin number (+1 or -1 or 0) for a conventional band. The spin number stands for spin-up (+1), spin-down (-1) and spinless (0), respectively</td> </tr> </tbody> </table> <h4 id="module-peeksys">module <code class="language-plaintext highlighter-rouge">peeksys</code></h4> <p><code class="language-plaintext highlighter-rouge">python peaksys.py</code> Peek into the system you created. Once you’d like to see what is in your system, how many bands and their parameters. The above command will print out a summary of bands in table-like format.</p> <h4 id="module-delband">module <code class="language-plaintext highlighter-rouge">delband</code></h4> <p><code class="language-plaintext highlighter-rouge">python delband.py</code> Remove bands from a system</p> <p>It will prompt a dialogue <code class="language-plaintext highlighter-rouge">which band to delete? Input the index number: Or press 'e' to exit</code>. Type the number in front of all the parameters within a row for that band you want to delete. Or quit by typing <code class="language-plaintext highlighter-rouge">e</code>. In some cases, you need to delete bands in multiple-line scripts, then just using <code class="language-plaintext highlighter-rouge">python toybands/delband.py -i [INDEX or all]</code> ‘all’ will remove all.</p> <h4 id="module-run">module <code class="language-plaintext highlighter-rouge">run</code></h4> <p><code class="language-plaintext highlighter-rouge">python run.py [-option][parameters]</code> Carry out various tasks in the existing material system.</p> <table> <thead> <tr> <th>Option</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code class="language-plaintext highlighter-rouge">--enrange</code></td> <td>energy range: start end NumofPoints</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">--bfrange</code></td> <td>magnetic field range: start end NumofPoints</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-enplot</code></td> <td>plot the energy versus bfield</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-denplot</code></td> <td>plot the density versus bfield</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-simu</code></td> <td>simulation</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-dosm</code></td> <td>mapping of DOS onto (n,B)</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-dos</code></td> <td>plot dos versus bfield</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">--allden</code></td> <td>densities for each band: start1 end1 start2 end2 …</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-nos</code></td> <td>number of steps in the simulation</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-dir</code></td> <td>relative output directory</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-fnm</code></td> <td>filename</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-nmax</code></td> <td>number of Landau levels to be considered (default=20)</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-angle</code></td> <td>angle in degree made with the sample plane norm by the external field (default=0)</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-scond</code></td> <td>set Landau level broadening parameter sigma at B = 1 T for conduction bands</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-sval</code></td> <td>set Landau level broadening parameter sigma at B = 1 T for valence bands</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">-zll</code></td> <td>reduce the density of state (DOS) of zero LLs to its half compared to other LLs</td> </tr> </tbody> </table>]]></content><author><name></name></author><category term="physics"/><category term="programming"/><summary type="html"><![CDATA[This blog serves as a memorial for the project titled “A Landau level simulator” to keep notes of why i started and what i learned from it.]]></summary></entry><entry><title type="html">How Can Python Improve Work Flow in Data Analysis</title><link href="https://lixianphwang.com/blog/2021/data-analysis/" rel="alternate" type="text/html" title="How Can Python Improve Work Flow in Data Analysis"/><published>2021-10-12T00:00:00+00:00</published><updated>2021-10-12T00:00:00+00:00</updated><id>https://lixianphwang.com/blog/2021/data-analysis</id><content type="html" xml:base="https://lixianphwang.com/blog/2021/data-analysis/"><![CDATA[<p>This blog serves as a memorial for the project titled <a href="/projects/2_project/">“A versatile Python tool box for data analysis”</a> to keep notes of why i started and what i learned from it.</p> <p>Working in a laboratory, I spend a good amount of time on analyzing data acquired from various apparatus in the course of my daily routine. To drive the circle of workflow comprising experimental design, implementation and analysis efficiently, it is beneficial and advisable to get as much as information from data in limited time. It would be awful if one missed fantastic experimental ideas due to a lack of knowledge and understanding in existing data. In general, this requires practical thoughts and technique improvements in preparing data (pre-processing) and visualizing data (plotting). On one hand, I developed this tool box for my personal use and take it as an experimental attempt to improve the workflow for a laboratory researcher in a data-rich disciplinary, like physics and biology. On the other hand, I hope it, as an open-source project, can also encourage and inspire interested researchers to integrate a bit Python into their workflow for personalized purposes.</p> <h2 id="design-under-the-hood">Design under the hood</h2> <p>The source code of this open-source project is hosted at <a href="https://github.com/LarsonLaugh/Scientific-data">Github</a>.</p> <h3 id="structure">Structure</h3> <p>Its structure is simple that all scripts are placed under the root directory. The body of this project comprises three components: <code class="language-plaintext highlighter-rouge">SciData.py</code>, <code class="language-plaintext highlighter-rouge">functions.py</code> and other specially-purposed scripts like <code class="language-plaintext highlighter-rouge">peakFind.py</code> and <code class="language-plaintext highlighter-rouge">startnb.py</code>. <code class="language-plaintext highlighter-rouge">SciData.py</code> contains all the classes designed to prepare data existing in different types of raw data files. <code class="language-plaintext highlighter-rouge">functions.py</code> is a container for useful functions for simple calculation (e.g., fitting), data plotting and other specialized purposes(e.g., background remover, interpolation and differentiation) . Additionally, <code class="language-plaintext highlighter-rouge">startnb.py</code> provides a template for setting up a personalized <em>Jupyter notebook</em> environment; <code class="language-plaintext highlighter-rouge">peakFind.py</code> provides an algorithm for identifying peak positions in 1-dimensional data array.</p> <h3 id="principle">Principle</h3> <p>The design principle can be broken down into three steps: Firstly, import and format raw data into a structured dataset defined by various classes; Secondly, methods of classes is utilized to handle pre-process, extraction of processed data and occasionally data visualization ; Lastly, a variety of functions are designed for later data processing and plotting. The second step is purposed to avoid potential pollution from any data processing after the initialization.</p> <h2 id="usage">Usage</h2> <h3 id="caveat">Caveat</h3> <p>Though I intended to provide a general framework for data analysis in long-run, this project is so far still mainly personalized for my own use. Beware that the adaptation process requires some solid work. I hope this implementation and its design principle can be beneficial for anyone interested in building similar tools in diverse fields (Folk and PR are very welcome).</p> <h3 id="team-up-with-jupyter-notebook">Team up with Jupyter notebook</h3> <p>Personally, I like the interface of Jupyter notebook and the cell execution design very much. To maximize your gain from this project, it is highly recommended to use this package in a predefined Jupyter notebook environment. To do this, simply add the following snippet in front of your workspace in a notebook :</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">sys</span> <span class="kn">import</span> <span class="n">platform</span> 
-<span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="sh">"</span><span class="s">linux</span><span class="sh">"</span> <span class="ow">or</span> <span class="n">platform</span> <span class="o">==</span> <span class="sh">"</span><span class="s">linux2</span><span class="sh">"</span><span class="p">:</span> 
-	<span class="o">%</span><span class="n">run</span> <span class="p">..</span><span class="o">/</span><span class="p">..</span><span class="o">/</span><span class="n">SciData</span><span class="o">/</span><span class="n">startnb</span><span class="p">.</span><span class="n">py</span> <span class="c1"># For a Linux machine
-</span><span class="k">else</span><span class="p">:</span> 
-	<span class="o">%</span><span class="n">run</span> <span class="p">..</span>\<span class="p">..</span>\<span class="n">SciData</span>\<span class="n">startnb</span><span class="p">.</span><span class="n">py</span> <span class="c1"># For a Windows/Mac machine
-</span></code></pre></div></div> <p>In <code class="language-plaintext highlighter-rouge">startnb.py</code>, one can add more frequently-used Python packages, change default plotting options and modify welcome messages to display the location and version of setting scripts.</p> <h3 id="data-preparation">Data preparation</h3> <p>A good practice is to relocate all relevant raw data files into one place beforehand, e.g, under a directory <code class="language-plaintext highlighter-rouge">pwd=r'../data'</code> for more organized data handling. After raw data files being in place, we can simply choose a data structure (class) from the tool box. Here we use <code class="language-plaintext highlighter-rouge">Datags</code> as an example in single-line code <code class="language-plaintext highlighter-rouge">data_structure_instance = Datags(attributes)</code> . Till here, your raw data in a specified folder has been imported into a predefined container <code class="language-plaintext highlighter-rouge">Datags</code>. To get the processed data, simply call the method <code class="language-plaintext highlighter-rouge">getdata()</code> like <code class="language-plaintext highlighter-rouge">your_structured_data = data_structure_instance.getdata()</code>. Note that data structure <code class="language-plaintext highlighter-rouge">DataX</code> is designed to contain customized dataset with minimum limitations.</p> <h3 id="plotting">Plotting</h3> <h4 id="simple-plot">Simple plot</h4> <p>A plot option <code class="language-plaintext highlighter-rouge">plotdata()</code> is offered directly by the instance of data structure for one-shot quick visualization at the cost of more customized features. A more proper plot can be easily done with data columns extracted from the data body as demonstrated below:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">xcol</span><span class="p">,</span><span class="n">ycol</span> <span class="o">=</span> <span class="n">your_structured_data</span><span class="p">.</span><span class="n">xcol</span><span class="p">,</span> <span class="n">your_structured_data</span><span class="p">.</span><span class="n">ycol</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">xcol</span><span class="p">,</span><span class="n">ycol</span><span class="p">)</span>
-</code></pre></div></div> <h4 id="2d-plot">2D plot</h4> <p>A method <code class="language-plaintext highlighter-rouge">plotmap</code> is equipped for a data structure <code class="language-plaintext highlighter-rouge">Datamap</code> intended for handling two-dimensional (2D) data. For other data structures, some tools are offered to construct a 2D array-like data, like <code class="language-plaintext highlighter-rouge">diffz_df</code> and <code class="language-plaintext highlighter-rouge">fc_interp</code>.</p> <h4 id="interactive-plot">Interactive plot</h4> <p>In <code class="language-plaintext highlighter-rouge">functions.py</code>, several functions have been designed to produce interactive plots for various data structures, like <code class="language-plaintext highlighter-rouge">plot_fc_analysis()</code> and <code class="language-plaintext highlighter-rouge">plot_fftmap()</code>.</p> <h2 id="an-open-discussion-how-to-improve-your-workflow">An open discussion: how to improve your workflow</h2> <p>In the course of my research career, I have used Origin, MATLAB and finally realized that Python and Jupyter notebook is my best choice for data analysis in recent years. I am going to reflect on how Python and Jupyter help me form my style in data analysis.</p> <h3 id="raw-data-management">Raw data management</h3> <p>In data processing, we don’t want to mix up raw data with processed data. This requires good management of raw data. Firstly, all raw data will be located in a safe place to prevent from being accidentally modified. For each independent analysis, we directly import raw data</p>]]></content><author><name></name></author><category term="physics"/><category term="programming"/><summary type="html"><![CDATA[This blog serves as a memorial for the project titled “A versatile Python tool box for data analysis” to keep notes of why i started and what i learned from it.]]></summary></entry></feed>
+<span class="cp">{%</span><span class="w"> </span><span class="nt">tab</span><span class="w"> </span><span class="nv">group-name</span><span class="w"> </span><span class="nv">tab-name-1</span><span class="w"> </span><span class="cp">%}</span>
+
+Content 1
+
+<span class="cp">{%</span><span class="w"> </span><span class="nt">endtab</span><span class="w"> </span><span class="cp">%}</span>
+
+<span class="cp">{%</span><span class="w"> </span><span class="nt">tab</span><span class="w"> </span><span class="nv">group-name</span><span class="w"> </span><span class="nv">tab-name-2</span><span class="w"> </span><span class="cp">%}</span>
+
+Content 2
+
+<span class="cp">{%</span><span class="w"> </span><span class="nt">endtab</span><span class="w"> </span><span class="cp">%}</span>
+
+<span class="cp">{%</span><span class="w"> </span><span class="nt">endtabs</span><span class="w"> </span><span class="cp">%}</span>
+</code></pre></div></div> <p>With this you can generate visualizations like:</p> <ul id="log" class="tab" data-tab="8f002eb4-c854-404a-91cb-a93c3a7e8bec" data-name="log"> <li class="active" id="log-php"> <a href="#">php </a> </li> <li id="log-js"> <a href="#">js </a> </li> <li id="log-ruby"> <a href="#">ruby </a> </li> </ul> <ul class="tab-content" id="8f002eb4-c854-404a-91cb-a93c3a7e8bec" data-name="log"> <li class="active"> <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">var_dump</span><span class="p">(</span><span class="s1">'hello'</span><span class="p">);</span>
+</code></pre></div></div> </li> <li> <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">hello</span><span class="dl">"</span><span class="p">);</span>
+</code></pre></div></div> </li> <li> <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">pputs</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+</code></pre></div></div> </li> </ul> <h2 id="another-example">Another example</h2> <ul id="data-struct" class="tab" data-tab="af6e1725-ac3b-4006-ac79-9ed8005abb6b" data-name="data-struct"> <li class="active" id="data-struct-yaml"> <a href="#">yaml </a> </li> <li id="data-struct-json"> <a href="#">json </a> </li> </ul> <ul class="tab-content" id="af6e1725-ac3b-4006-ac79-9ed8005abb6b" data-name="data-struct"> <li class="active"> <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">hello</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">whatsup"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">hi"</span>
+</code></pre></div></div> </li> <li> <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"hello"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"whatsup"</span><span class="p">,</span><span class="w"> </span><span class="s2">"hi"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div> </li> </ul> <h2 id="tabs-for-something-else">Tabs for something else</h2> <ul id="something-else" class="tab" data-tab="24d14954-84da-43a5-8bea-b53a1a3af0ce" data-name="something-else"> <li class="active" id="something-else-text"> <a href="#">text </a> </li> <li id="something-else-quote"> <a href="#">quote </a> </li> <li id="something-else-list"> <a href="#">list </a> </li> </ul> <ul class="tab-content" id="24d14954-84da-43a5-8bea-b53a1a3af0ce" data-name="something-else"> <li class="active"> <p>Regular text</p> </li> <li> <blockquote> <p>A quote</p> </blockquote> </li> <li> <p>Hipster list</p> <ul> <li>brunch</li> <li>fixie</li> <li>raybans</li> <li>messenger bag</li> </ul> </li> </ul>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="code"/><summary type="html"><![CDATA[this is what included tabs in a post could look like]]></summary></entry><entry><title type="html">a post with typograms</title><link href="https://alshedivat.github.io/al-folio/blog/2024/typograms/" rel="alternate" type="text/html" title="a post with typograms"/><published>2024-04-29T23:36:10+00:00</published><updated>2024-04-29T23:36:10+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/typograms</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/typograms/"><![CDATA[<p>This is an example post with some <a href="https://github.com/google/typograms/">typograms</a> code.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">typograms
+</span><span class="sb">+----+
+|    |---&gt; My first diagram!
++----+</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-typograms">+----+
+|    |---&gt; My first diagram!
++----+
+</code></pre> <p>Another example:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">typograms
+</span><span class="sb">.------------------------.
+|.----------------------.|
+||"https://example.com" ||
+|'----------------------'|
+| ______________________ |
+||                      ||
+||   Welcome!           ||
+||                      ||
+||                      ||
+||  .----------------.  ||
+||  | username       |  ||
+||  '----------------'  ||
+||  .----------------.  ||
+||  |"*******"       |  ||
+||  '----------------'  ||
+||                      ||
+||  .----------------.  ||
+||  |   "Sign-up"    |  ||
+||  '----------------'  ||
+||                      ||
+|+----------------------+|
+.------------------------.</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>which generates:</p> <pre><code class="language-typograms">.------------------------.
+|.----------------------.|
+||"https://example.com" ||
+|'----------------------'|
+| ______________________ |
+||                      ||
+||   Welcome!           ||
+||                      ||
+||                      ||
+||  .----------------.  ||
+||  | username       |  ||
+||  '----------------'  ||
+||  .----------------.  ||
+||  |"*******"       |  ||
+||  '----------------'  ||
+||                      ||
+||  .----------------.  ||
+||  |   "Sign-up"    |  ||
+||  '----------------'  ||
+||                      ||
+|+----------------------+|
+.------------------------.
+</code></pre> <p>For more examples, check out the <a href="https://google.github.io/typograms/#examples">typograms documentation</a>.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="diagrams"/><summary type="html"><![CDATA[this is what included typograms code could look like]]></summary></entry><entry><title type="html">a post that can be cited</title><link href="https://alshedivat.github.io/al-folio/blog/2024/post-citation/" rel="alternate" type="text/html" title="a post that can be cited"/><published>2024-04-28T15:06:00+00:00</published><updated>2024-04-28T15:06:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/post-citation</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/post-citation/"><![CDATA[<p>This is an example post that can be cited. The content of the post ends here, while the citation information is automatically provided below. The only thing needed is for you to set the <code class="language-plaintext highlighter-rouge">citation</code> key in the front matter to <code class="language-plaintext highlighter-rouge">true</code>.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="citation"/><summary type="html"><![CDATA[this is what a post that can be cited looks like]]></summary></entry><entry><title type="html">a post with pseudo code</title><link href="https://alshedivat.github.io/al-folio/blog/2024/pseudocode/" rel="alternate" type="text/html" title="a post with pseudo code"/><published>2024-04-15T00:01:00+00:00</published><updated>2024-04-15T00:01:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/pseudocode</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/pseudocode/"><![CDATA[<p>This is an example post with some pseudo code rendered by <a href="https://github.com/SaswatPadhi/pseudocode.js">pseudocode</a>. The example presented here is the same as the one in the <a href="https://saswat.padhi.me/pseudocode.js/">pseudocode.js</a> documentation, with only one simple but important change: everytime you would use <code class="language-plaintext highlighter-rouge">$</code>, you should use <code class="language-plaintext highlighter-rouge">$$</code> instead. Also, note that the <code class="language-plaintext highlighter-rouge">pseudocode</code> key in the front matter is set to <code class="language-plaintext highlighter-rouge">true</code> to enable the rendering of pseudo code. As an example, using this code:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">pseudocode
+</span><span class="sb">% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}
+\PROCEDURE{Quicksort}{$$A, p, r$$}
+    \IF{$$p &lt; r$$}
+        \STATE $$q = $$ \CALL{Partition}{$$A, p, r$$}
+        \STATE \CALL{Quicksort}{$$A, p, q - 1$$}
+        \STATE \CALL{Quicksort}{$$A, q + 1, r$$}
+    \ENDIF
+\ENDPROCEDURE
+\PROCEDURE{Partition}{$$A, p, r$$}
+    \STATE $$x = A[r]$$
+    \STATE $$i = p - 1$$
+    \FOR{$$j = p$$ \TO $$r - 1$$}
+        \IF{$$A[j] &lt; x$$}
+            \STATE $$i = i + 1$$
+            \STATE exchange
+            $$A[i]$$ with $$A[j]$$
+        \ENDIF
+        \STATE exchange $$A[i]$$ with $$A[r]$$
+    \ENDFOR
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>Generates:</p> <pre><code class="language-pseudocode">% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}
+\PROCEDURE{Quicksort}{$$A, p, r$$}
+    \IF{$$p &lt; r$$}
+        \STATE $$q = $$ \CALL{Partition}{$$A, p, r$$}
+        \STATE \CALL{Quicksort}{$$A, p, q - 1$$}
+        \STATE \CALL{Quicksort}{$$A, q + 1, r$$}
+    \ENDIF
+\ENDPROCEDURE
+\PROCEDURE{Partition}{$$A, p, r$$}
+    \STATE $$x = A[r]$$
+    \STATE $$i = p - 1$$
+    \FOR{$$j = p$$ \TO $$r - 1$$}
+        \IF{$$A[j] &lt; x$$}
+            \STATE $$i = i + 1$$
+            \STATE exchange
+            $$A[i]$$ with $$A[j]$$
+        \ENDIF
+        \STATE exchange $$A[i]$$ with $$A[r]$$
+    \ENDFOR
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="code"/><summary type="html"><![CDATA[this is what included pseudo code could look like]]></summary></entry><entry><title type="html">a post with code diff</title><link href="https://alshedivat.github.io/al-folio/blog/2024/code-diff/" rel="alternate" type="text/html" title="a post with code diff"/><published>2024-01-27T19:22:00+00:00</published><updated>2024-01-27T19:22:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/code-diff</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/code-diff/"><![CDATA[<p>You can display diff code by using the regular markdown syntax:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">diff
+</span><span class="gh">diff --git a/sample.js b/sample.js
+index 0000001..0ddf2ba
+</span><span class="gd">--- a/sample.js
+</span><span class="gi">+++ b/sample.js
+</span><span class="p">@@ -1 +1 @@</span>
+<span class="gd">-console.log("Hello World!")
+</span><span class="gi">+console.log("Hello from Diff2Html!")</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>Which generates:</p> <div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/sample.js b/sample.js
+index 0000001..0ddf2ba
+</span><span class="gd">--- a/sample.js
+</span><span class="gi">+++ b/sample.js
+</span><span class="p">@@ -1 +1 @@</span>
+<span class="gd">-console.log("Hello World!")
+</span><span class="gi">+console.log("Hello from Diff2Html!")
+</span></code></pre></div></div> <p>But this is difficult to read, specially if you have a large diff. You can use <a href="https://diff2html.xyz/">diff2html</a> to display a more readable version of the diff. For this, just use <code class="language-plaintext highlighter-rouge">diff2html</code> instead of <code class="language-plaintext highlighter-rouge">diff</code> for the code block language:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">diff2html
+</span><span class="sb">diff --git a/sample.js b/sample.js
+index 0000001..0ddf2ba
+--- a/sample.js
++++ b/sample.js
+@@ -1 +1 @@
+-console.log("Hello World!")
++console.log("Hello from Diff2Html!")</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>If we use a longer example, for example <a href="https://github.com/rtfpessoa/diff2html/commit/c2c253d3e3f8b8b267f551e659f72b44ca2ac927">this commit from diff2html</a>, it will generate the following output:</p> <pre><code class="language-diff2html">From 2aaae31cc2a37bfff83430c2c914b140bee59b6a Mon Sep 17 00:00:00 2001
+From: Rodrigo Fernandes &lt;rtfrodrigo@gmail.com&gt;
+Date: Sun, 9 Oct 2016 16:41:54 +0100
+Subject: [PATCH 1/2] Initial template override support
+
+---
+ scripts/hulk.js                    |  4 ++--
+ src/diff2html.js                   |  3 +--
+ src/file-list-printer.js           | 11 ++++++++---
+ src/hoganjs-utils.js               | 29 +++++++++++++++++------------
+ src/html-printer.js                |  6 ++++++
+ src/line-by-line-printer.js        |  6 +++++-
+ src/side-by-side-printer.js        |  6 +++++-
+ test/file-list-printer-tests.js    |  2 +-
+ test/hogan-cache-tests.js          | 18 +++++++++++++++---
+ test/line-by-line-tests.js         |  3 +--
+ test/side-by-side-printer-tests.js |  3 +--
+ 11 files changed, 62 insertions(+), 29 deletions(-)
+
+diff --git a/scripts/hulk.js b/scripts/hulk.js
+index 5a793c18..a4b1a4d5 100755
+--- a/scripts/hulk.js
++++ b/scripts/hulk.js
+@@ -173,11 +173,11 @@ function namespace(name) {
+ // write a template foreach file that matches template extension
+ templates = extractFiles(options.argv.remain)
+   .map(function(file) {
+-    var openedFile = fs.readFileSync(file, 'utf-8');
++    var openedFile = fs.readFileSync(file, 'utf-8').trim();
+     var name;
+     if (!openedFile) return;
+     name = namespace(path.basename(file).replace(/\..*$/, ''));
+-    openedFile = removeByteOrderMark(openedFile.trim());
++    openedFile = removeByteOrderMark(openedFile);
+     openedFile = wrap(file, name, openedFile);
+     if (!options.outputdir) return openedFile;
+     fs.writeFileSync(path.join(options.outputdir, name + '.js')
+diff --git a/src/diff2html.js b/src/diff2html.js
+index 21b0119e..64e138f5 100644
+--- a/src/diff2html.js
++++ b/src/diff2html.js
+@@ -7,7 +7,6 @@
+
+ (function() {
+   var diffParser = require('./diff-parser.js').DiffParser;
+-  var fileLister = require('./file-list-printer.js').FileListPrinter;
+   var htmlPrinter = require('./html-printer.js').HtmlPrinter;
+
+   function Diff2Html() {
+@@ -43,7 +42,7 @@
+
+     var fileList = '';
+     if (configOrEmpty.showFiles === true) {
+-      fileList = fileLister.generateFileList(diffJson, configOrEmpty);
++      fileList = htmlPrinter.generateFileListSummary(diffJson, configOrEmpty);
+     }
+
+     var diffOutput = '';
+diff --git a/src/file-list-printer.js b/src/file-list-printer.js
+index e408d9b2..1e0a2c61 100644
+--- a/src/file-list-printer.js
++++ b/src/file-list-printer.js
+@@ -8,11 +8,16 @@
+ (function() {
+   var printerUtils = require('./printer-utils.js').PrinterUtils;
+
+-  var hoganUtils = require('./hoganjs-utils.js').HoganJsUtils;
++  var hoganUtils;
++
+   var baseTemplatesPath = 'file-summary';
+   var iconsBaseTemplatesPath = 'icon';
+
+-  function FileListPrinter() {
++  function FileListPrinter(config) {
++    this.config = config;
++
++    var HoganJsUtils = require('./hoganjs-utils.js').HoganJsUtils;
++    hoganUtils = new HoganJsUtils(config);
+   }
+
+   FileListPrinter.prototype.generateFileList = function(diffFiles) {
+@@ -38,5 +43,5 @@
+     });
+   };
+
+-  module.exports.FileListPrinter = new FileListPrinter();
++  module.exports.FileListPrinter = FileListPrinter;
+ })();
+diff --git a/src/hoganjs-utils.js b/src/hoganjs-utils.js
+index 9949e5fa..0dda08d7 100644
+--- a/src/hoganjs-utils.js
++++ b/src/hoganjs-utils.js
+@@ -8,18 +8,19 @@
+ (function() {
+   var fs = require('fs');
+   var path = require('path');
+-
+   var hogan = require('hogan.js');
+
+   var hoganTemplates = require('./templates/diff2html-templates.js');
+
+-  var templatesPath = path.resolve(__dirname, 'templates');
++  var extraTemplates;
+
+-  function HoganJsUtils() {
++  function HoganJsUtils(configuration) {
++    this.config = configuration || {};
++    extraTemplates = this.config.templates || {};
+   }
+
+-  HoganJsUtils.prototype.render = function(namespace, view, params, configuration) {
+-    var template = this.template(namespace, view, configuration);
++  HoganJsUtils.prototype.render = function(namespace, view, params) {
++    var template = this.template(namespace, view);
+     if (template) {
+       return template.render(params);
+     }
+@@ -27,17 +28,16 @@
+     return null;
+   };
+
+-  HoganJsUtils.prototype.template = function(namespace, view, configuration) {
+-    var config = configuration || {};
++  HoganJsUtils.prototype.template = function(namespace, view) {
+     var templateKey = this._templateKey(namespace, view);
+
+-    return this._getTemplate(templateKey, config);
++    return this._getTemplate(templateKey);
+   };
+
+-  HoganJsUtils.prototype._getTemplate = function(templateKey, config) {
++  HoganJsUtils.prototype._getTemplate = function(templateKey) {
+     var template;
+
+-    if (!config.noCache) {
++    if (!this.config.noCache) {
+       template = this._readFromCache(templateKey);
+     }
+
+@@ -53,6 +53,7 @@
+
+     try {
+       if (fs.readFileSync) {
++        var templatesPath = path.resolve(__dirname, 'templates');
+         var templatePath = path.join(templatesPath, templateKey);
+         var templateContent = fs.readFileSync(templatePath + '.mustache', 'utf8');
+         template = hogan.compile(templateContent);
+@@ -66,12 +67,16 @@
+   };
+
+   HoganJsUtils.prototype._readFromCache = function(templateKey) {
+-    return hoganTemplates[templateKey];
++    return extraTemplates[templateKey] || hoganTemplates[templateKey];
+   };
+
+   HoganJsUtils.prototype._templateKey = function(namespace, view) {
+     return namespace + '-' + view;
+   };
+
+-  module.exports.HoganJsUtils = new HoganJsUtils();
++  HoganJsUtils.prototype.compile = function(templateStr) {
++    return hogan.compile(templateStr);
++  };
++
++  module.exports.HoganJsUtils = HoganJsUtils;
+ })();
+diff --git a/src/html-printer.js b/src/html-printer.js
+index 585d5b66..13f83047 100644
+--- a/src/html-printer.js
++++ b/src/html-printer.js
+@@ -8,6 +8,7 @@
+ (function() {
+   var LineByLinePrinter = require('./line-by-line-printer.js').LineByLinePrinter;
+   var SideBySidePrinter = require('./side-by-side-printer.js').SideBySidePrinter;
++  var FileListPrinter = require('./file-list-printer.js').FileListPrinter;
+
+   function HtmlPrinter() {
+   }
+@@ -22,5 +23,10 @@
+     return sideBySidePrinter.generateSideBySideJsonHtml(diffFiles);
+   };
+
++  HtmlPrinter.prototype.generateFileListSummary = function(diffJson, config) {
++    var fileListPrinter = new FileListPrinter(config);
++    return fileListPrinter.generateFileList(diffJson);
++  };
++
+   module.exports.HtmlPrinter = new HtmlPrinter();
+ })();
+diff --git a/src/line-by-line-printer.js b/src/line-by-line-printer.js
+index b07eb53c..d230bedd 100644
+--- a/src/line-by-line-printer.js
++++ b/src/line-by-line-printer.js
+@@ -11,7 +11,8 @@
+   var utils = require('./utils.js').Utils;
+   var Rematch = require('./rematch.js').Rematch;
+
+-  var hoganUtils = require('./hoganjs-utils.js').HoganJsUtils;
++  var hoganUtils;
++
+   var genericTemplatesPath = 'generic';
+   var baseTemplatesPath = 'line-by-line';
+   var iconsBaseTemplatesPath = 'icon';
+@@ -19,6 +20,9 @@
+
+   function LineByLinePrinter(config) {
+     this.config = config;
++
++    var HoganJsUtils = require('./hoganjs-utils.js').HoganJsUtils;
++    hoganUtils = new HoganJsUtils(config);
+   }
+
+   LineByLinePrinter.prototype.makeFileDiffHtml = function(file, diffs) {
+diff --git a/src/side-by-side-printer.js b/src/side-by-side-printer.js
+index bbf1dc8d..5e3033b3 100644
+--- a/src/side-by-side-printer.js
++++ b/src/side-by-side-printer.js
+@@ -11,7 +11,8 @@
+   var utils = require('./utils.js').Utils;
+   var Rematch = require('./rematch.js').Rematch;
+
+-  var hoganUtils = require('./hoganjs-utils.js').HoganJsUtils;
++  var hoganUtils;
++
+   var genericTemplatesPath = 'generic';
+   var baseTemplatesPath = 'side-by-side';
+   var iconsBaseTemplatesPath = 'icon';
+@@ -26,6 +27,9 @@
+
+   function SideBySidePrinter(config) {
+     this.config = config;
++
++    var HoganJsUtils = require('./hoganjs-utils.js').HoganJsUtils;
++    hoganUtils = new HoganJsUtils(config);
+   }
+
+   SideBySidePrinter.prototype.makeDiffHtml = function(file, diffs) {
+diff --git a/test/file-list-printer-tests.js b/test/file-list-printer-tests.js
+index a502a46f..60ea3208 100644
+--- a/test/file-list-printer-tests.js
++++ b/test/file-list-printer-tests.js
+@@ -1,6 +1,6 @@
+ var assert = require('assert');
+
+-var fileListPrinter = require('../src/file-list-printer.js').FileListPrinter;
++var fileListPrinter = new (require('../src/file-list-printer.js').FileListPrinter)();
+
+ describe('FileListPrinter', function() {
+   describe('generateFileList', function() {
+diff --git a/test/hogan-cache-tests.js b/test/hogan-cache-tests.js
+index 190bf6f8..3bb754ac 100644
+--- a/test/hogan-cache-tests.js
++++ b/test/hogan-cache-tests.js
+@@ -1,6 +1,6 @@
+ var assert = require('assert');
+
+-var HoganJsUtils = require('../src/hoganjs-utils.js').HoganJsUtils;
++var HoganJsUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)();
+ var diffParser = require('../src/diff-parser.js').DiffParser;
+
+ describe('HoganJsUtils', function() {
+@@ -21,16 +21,28 @@ describe('HoganJsUtils', function() {
+       });
+       assert.equal(emptyDiffHtml, result);
+     });
++
+     it('should render view without cache', function() {
+       var result = HoganJsUtils.render('generic', 'empty-diff', {
+         contentClass: 'd2h-code-line',
+         diffParser: diffParser
+       }, {noCache: true});
+-      assert.equal(emptyDiffHtml + '\n', result);
++      assert.equal(emptyDiffHtml, result);
+     });
++
+     it('should return null if template is missing', function() {
+-      var result = HoganJsUtils.render('generic', 'missing-template', {}, {noCache: true});
++      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)({noCache: true});
++      var result = hoganUtils.render('generic', 'missing-template', {});
+       assert.equal(null, result);
+     });
++
++    it('should allow templates to be overridden', function() {
++      var emptyDiffTemplate = HoganJsUtils.compile('&lt;p&gt;&lt;/p&gt;');
++
++      var config = {templates: {'generic-empty-diff': emptyDiffTemplate}};
++      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)(config);
++      var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
++      assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
++    });
+   });
+ });
+diff --git a/test/line-by-line-tests.js b/test/line-by-line-tests.js
+index 1cd92073..8869b3df 100644
+--- a/test/line-by-line-tests.js
++++ b/test/line-by-line-tests.js
+@@ -14,7 +14,7 @@ describe('LineByLinePrinter', function() {
+         '            File without changes\n' +
+         '        &lt;/div&gt;\n' +
+         '    &lt;/td&gt;\n' +
+-        '&lt;/tr&gt;\n';
++        '&lt;/tr&gt;';
+
+       assert.equal(expected, fileHtml);
+     });
+@@ -422,7 +422,6 @@ describe('LineByLinePrinter', function() {
+         '        &lt;/div&gt;\n' +
+         '    &lt;/td&gt;\n' +
+         '&lt;/tr&gt;\n' +
+-        '\n' +
+         '                &lt;/tbody&gt;\n' +
+         '            &lt;/table&gt;\n' +
+         '        &lt;/div&gt;\n' +
+diff --git a/test/side-by-side-printer-tests.js b/test/side-by-side-printer-tests.js
+index 76625f8e..771daaa5 100644
+--- a/test/side-by-side-printer-tests.js
++++ b/test/side-by-side-printer-tests.js
+@@ -14,7 +14,7 @@ describe('SideBySidePrinter', function() {
+         '            File without changes\n' +
+         '        &lt;/div&gt;\n' +
+         '    &lt;/td&gt;\n' +
+-        '&lt;/tr&gt;\n';
++        '&lt;/tr&gt;';
+
+       assert.equal(expectedRight, fileHtml.right);
+       assert.equal(expectedLeft, fileHtml.left);
+@@ -324,7 +324,6 @@ describe('SideBySidePrinter', function() {
+         '        &lt;/div&gt;\n' +
+         '    &lt;/td&gt;\n' +
+         '&lt;/tr&gt;\n' +
+-        '\n' +
+         '                    &lt;/tbody&gt;\n' +
+         '                &lt;/table&gt;\n' +
+         '            &lt;/div&gt;\n' +
+
+From f3cadb96677d0eb82fc2752dc3ffbf35ca9b5bdb Mon Sep 17 00:00:00 2001
+From: Rodrigo Fernandes &lt;rtfrodrigo@gmail.com&gt;
+Date: Sat, 15 Oct 2016 13:21:22 +0100
+Subject: [PATCH 2/2] Allow uncompiled templates
+
+---
+ README.md                 |  3 +++
+ src/hoganjs-utils.js      |  7 +++++++
+ test/hogan-cache-tests.js | 24 +++++++++++++++++++++++-
+ 3 files changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 132c8a28..46909f25 100644
+--- a/README.md
++++ b/README.md
+@@ -98,6 +98,9 @@ The HTML output accepts a Javascript object with configuration. Possible options
+   - `synchronisedScroll`: scroll both panes in side-by-side mode: `true` or `false`, default is `false`
+   - `matchWordsThreshold`: similarity threshold for word matching, default is 0.25
+   - `matchingMaxComparisons`: perform at most this much comparisons for line matching a block of changes, default is `2500`
++  - `templates`: object with previously compiled templates to replace parts of the html
++  - `rawTemplates`: object with raw not compiled templates to replace parts of the html
++  &gt; For more information regarding the possible templates look into [src/templates](https://github.com/rtfpessoa/diff2html/tree/master/src/templates)
+
+ ## Diff2HtmlUI Helper
+
+diff --git a/src/hoganjs-utils.js b/src/hoganjs-utils.js
+index 0dda08d7..b2e9c275 100644
+--- a/src/hoganjs-utils.js
++++ b/src/hoganjs-utils.js
+@@ -17,6 +17,13 @@
+   function HoganJsUtils(configuration) {
+     this.config = configuration || {};
+     extraTemplates = this.config.templates || {};
++
++    var rawTemplates = this.config.rawTemplates || {};
++    for (var templateName in rawTemplates) {
++      if (rawTemplates.hasOwnProperty(templateName)) {
++        if (!extraTemplates[templateName]) extraTemplates[templateName] = this.compile(rawTemplates[templateName]);
++      }
++    }
+   }
+
+   HoganJsUtils.prototype.render = function(namespace, view, params) {
+diff --git a/test/hogan-cache-tests.js b/test/hogan-cache-tests.js
+index 3bb754ac..a34839c0 100644
+--- a/test/hogan-cache-tests.js
++++ b/test/hogan-cache-tests.js
+@@ -36,7 +36,7 @@ describe('HoganJsUtils', function() {
+       assert.equal(null, result);
+     });
+
+-    it('should allow templates to be overridden', function() {
++    it('should allow templates to be overridden with compiled templates', function() {
+       var emptyDiffTemplate = HoganJsUtils.compile('&lt;p&gt;&lt;/p&gt;');
+
+       var config = {templates: {'generic-empty-diff': emptyDiffTemplate}};
+@@ -44,5 +44,27 @@ describe('HoganJsUtils', function() {
+       var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
+       assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
+     });
++
++    it('should allow templates to be overridden with uncompiled templates', function() {
++      var emptyDiffTemplate = '&lt;p&gt;&lt;/p&gt;';
++
++      var config = {rawTemplates: {'generic-empty-diff': emptyDiffTemplate}};
++      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)(config);
++      var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
++      assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
++    });
++
++    it('should allow templates to be overridden giving priority to compiled templates', function() {
++      var emptyDiffTemplate = HoganJsUtils.compile('&lt;p&gt;&lt;/p&gt;');
++      var emptyDiffTemplateUncompiled = '&lt;p&gt;Not used!&lt;/p&gt;';
++
++      var config = {
++        templates: {'generic-empty-diff': emptyDiffTemplate},
++        rawTemplates: {'generic-empty-diff': emptyDiffTemplateUncompiled}
++      };
++      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)(config);
++      var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
++      assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
++    });
+   });
+ });
+</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="code"/><summary type="html"><![CDATA[this is how you can display code diffs]]></summary></entry><entry><title type="html">a post with advanced image components</title><link href="https://alshedivat.github.io/al-folio/blog/2024/advanced-images/" rel="alternate" type="text/html" title="a post with advanced image components"/><published>2024-01-27T11:46:00+00:00</published><updated>2024-01-27T11:46:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/advanced-images</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/advanced-images/"><![CDATA[<p>This is an example post with advanced image components.</p> <h2 id="image-slider">Image Slider</h2> <p>This is a simple image slider. It uses the <a href="https://swiperjs.com/">Swiper</a> library. Check the <a href="https://swiperjs.com/demos">examples page</a> for more information of what you can achieve with it.</p> <swiper-container keyboard="true" navigation="true" pagination="true" pagination-clickable="true" pagination-dynamic-bullets="true" rewind="true"> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/9.jpg" sizes="95vw"/> <img src="/al-folio/assets/img/9.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/7.jpg" sizes="95vw"/> <img src="/al-folio/assets/img/7.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/8.jpg" sizes="95vw"/> <img src="/al-folio/assets/img/8.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/10.jpg" sizes="95vw"/> <img src="/al-folio/assets/img/10.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/12.jpg" sizes="95vw"/> <img src="/al-folio/assets/img/12.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> </swiper-container> <h2 id="image-comparison-slider">Image Comparison Slider</h2> <p>This is a simple image comparison slider. It uses the <a href="https://img-comparison-slider.sneas.io/">img-comparison-slider</a> library. Check the <a href="https://img-comparison-slider.sneas.io/examples.html">examples page</a> for more information of what you can achieve with it.</p> <img-comparison-slider> <figure slot="first"> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/prof_pic.jpg" sizes="95vw"/> <img src="/al-folio/assets/img/prof_pic.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <figure slot="second"> <picture> <source class="responsive-img-srcset" srcset="/al-folio/assets/img/prof_pic_color.png" sizes="95vw"/> <img src="/al-folio/assets/img/prof_pic_color.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </img-comparison-slider>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="images"/><summary type="html"><![CDATA[this is what advanced image components could look like]]></summary></entry><entry><title type="html">a post with vega lite</title><link href="https://alshedivat.github.io/al-folio/blog/2024/vega-lite/" rel="alternate" type="text/html" title="a post with vega lite"/><published>2024-01-27T00:20:00+00:00</published><updated>2024-01-27T00:20:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/vega-lite</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/vega-lite/"><![CDATA[<p>This is an example post with some <a href="https://vega.github.io/vega-lite/">vega lite</a> code.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">vega_lite
+</span><span class="sb">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "A dot plot showing each movie in the database, and the difference from the average movie rating. The display is sorted by year to visualize everything in sequential order. The graph is for all Movies before 2019.",
+  "data": {
+    "url": "https://raw.githubusercontent.com/vega/vega/main/docs/data/movies.json"
+  },
+  "transform": [
+    {"filter": "datum['IMDB Rating'] != null"},
+    {"filter": {"timeUnit": "year", "field": "Release Date", "range": [null, 2019]}},
+    {
+      "joinaggregate": [{
+        "op": "mean",
+        "field": "IMDB Rating",
+        "as": "AverageRating"
+      }]
+    },
+    {
+      "calculate": "datum['IMDB Rating'] - datum.AverageRating",
+      "as": "RatingDelta"
+    }
+  ],
+  "mark": "point",
+  "encoding": {
+    "x": {
+      "field": "Release Date",
+      "type": "temporal"
+    },
+    "y": {
+      "field": "RatingDelta",
+      "type": "quantitative",
+      "title": "Rating Delta"
+    },
+    "color": {
+      "field": "RatingDelta",
+      "type": "quantitative",
+      "scale": {"domainMid": 0},
+      "title": "Rating Delta"
+    }
+  }
+}</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-vega_lite">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "A dot plot showing each movie in the database, and the difference from the average movie rating. The display is sorted by year to visualize everything in sequential order. The graph is for all Movies before 2019.",
+  "data": {
+    "url": "https://raw.githubusercontent.com/vega/vega/main/docs/data/movies.json"
+  },
+  "transform": [
+    {"filter": "datum['IMDB Rating'] != null"},
+    {"filter": {"timeUnit": "year", "field": "Release Date", "range": [null, 2019]}},
+    {
+      "joinaggregate": [{
+        "op": "mean",
+        "field": "IMDB Rating",
+        "as": "AverageRating"
+      }]
+    },
+    {
+      "calculate": "datum['IMDB Rating'] - datum.AverageRating",
+      "as": "RatingDelta"
+    }
+  ],
+  "mark": "point",
+  "encoding": {
+    "x": {
+      "field": "Release Date",
+      "type": "temporal"
+    },
+    "y": {
+      "field": "RatingDelta",
+      "type": "quantitative",
+      "title": "Rating Delta"
+    },
+    "color": {
+      "field": "RatingDelta",
+      "type": "quantitative",
+      "scale": {"domainMid": 0},
+      "title": "Rating Delta"
+    }
+  }
+}
+</code></pre> <p>This plot supports both light and dark themes.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="charts"/><summary type="html"><![CDATA[this is what included vega lite code could look like]]></summary></entry><entry><title type="html">a post with geojson</title><link href="https://alshedivat.github.io/al-folio/blog/2024/geojson-map/" rel="alternate" type="text/html" title="a post with geojson"/><published>2024-01-26T17:57:00+00:00</published><updated>2024-01-26T17:57:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/geojson-map</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/geojson-map/"><![CDATA[<p>This is an example post with some <a href="https://geojson.org/">geojson</a> code. The support is provided thanks to <a href="https://leafletjs.com/">Leaflet</a>. To create your own visualization, go to <a href="https://geojson.io/">geojson.io</a>.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">geojson
+</span><span class="sb">{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              -60.11363029935569,
+              -2.904625022183211
+            ],
+            [
+              -60.11363029935569,
+              -3.162613728707967
+            ],
+            [
+              -59.820894493858034,
+              -3.162613728707967
+            ],
+            [
+              -59.820894493858034,
+              -2.904625022183211
+            ],
+            [
+              -60.11363029935569,
+              -2.904625022183211
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    }
+  ]
+}</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-geojson">{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              -60.11363029935569,
+              -2.904625022183211
+            ],
+            [
+              -60.11363029935569,
+              -3.162613728707967
+            ],
+            [
+              -59.820894493858034,
+              -3.162613728707967
+            ],
+            [
+              -59.820894493858034,
+              -2.904625022183211
+            ],
+            [
+              -60.11363029935569,
+              -2.904625022183211
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    }
+  ]
+}
+</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="charts"/><category term="maps"/><summary type="html"><![CDATA[this is what included geojson code could look like]]></summary></entry><entry><title type="html">a post with echarts</title><link href="https://alshedivat.github.io/al-folio/blog/2024/echarts/" rel="alternate" type="text/html" title="a post with echarts"/><published>2024-01-26T16:03:00+00:00</published><updated>2024-01-26T16:03:00+00:00</updated><id>https://alshedivat.github.io/al-folio/blog/2024/echarts</id><content type="html" xml:base="https://alshedivat.github.io/al-folio/blog/2024/echarts/"><![CDATA[<p>This is an example post with some <a href="https://echarts.apache.org/">echarts</a> code.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">echarts
+</span><span class="sb">{
+  "title": {
+    "text": "ECharts Getting Started Example"
+  },
+  "responsive": true,
+  "tooltip": {},
+  "legend": {
+    "top": "30px",
+    "data": ["sales"]
+  },
+  "xAxis": {
+    "data": ["Shirts", "Cardigans", "Chiffons", "Pants", "Heels", "Socks"]
+  },
+  "yAxis": {},
+  "series": [
+    {
+      "name": "sales",
+      "type": "bar",
+      "data": [5, 20, 36, 10, 10, 20]
+    }
+  ]
+}</span>
+<span class="p">```</span>
+</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-echarts">{
+  "title": {
+    "text": "ECharts Getting Started Example"
+  },
+  "responsive": true,
+  "tooltip": {},
+  "legend": {
+    "top": "30px",
+    "data": ["sales"]
+  },
+  "xAxis": {
+    "data": ["Shirts", "Cardigans", "Chiffons", "Pants", "Heels", "Socks"]
+  },
+  "yAxis": {},
+  "series": [
+    {
+      "name": "sales",
+      "type": "bar",
+      "data": [5, 20, 36, 10, 10, 20]
+    }
+  ]
+}
+</code></pre> <p>Note that this library offer support for both light and dark themes. You can switch between them using the theme switcher in the top right corner of the page.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="charts"/><summary type="html"><![CDATA[this is what included echarts code could look like]]></summary></entry></feed>
